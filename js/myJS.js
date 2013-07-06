@@ -38,6 +38,12 @@ function reloadPosts() {
 	$("#generatePosts").load("phpRequests/reloadPosts.php");	
 }
 
+function reloadPlaylist(postPrimkey) {
+		console.log("RELOADING: playlist"+postPrimkey);
+		//$("#playlist"+postPrimkey).html("NOOOO");
+		$("#playlist"+postPrimkey).load("phpRequests/reloadPlaylist.php?postPrimkey="+postPrimkey);	
+}
+
 function openCollapseBtn(postPrimkey) {
 	var ele = $("#collapse"+postPrimkey);
 	if (ele.hasClass("icon-collapse")) {
@@ -54,12 +60,40 @@ function closeCollapseBtn(postPrimkey) {
 	}
 }
 
+function getSongPostPrimkey(primkey) {
+	return $.post("phpRequests/getSongPostPrimkey.php", {primkey: primkey});
+}
+
 $(document).ready(function() {
 
 		/*
 		*	Toggling nav buttons to change popular to new is in bootstrap.js
 		*   Button.prototype.toggle = function () {}
 		*/
+
+		var firstPostPrimkey = $(".first-post").attr("id");
+		firstPostPrimkey = firstPostPrimkey.replace("post","");
+		openPost(firstPostPrimkey);
+
+		//CLICK LIKE BTN for each song
+		$(document).on("click",".like-song-btn",function(e) {
+			e.preventDefault();
+			var data = $(this).attr("data");
+			var primkey = data.replace("song","");
+			var promise = getSongPostPrimkey(primkey);
+			var likeText = $(this).find(".song-likes");
+			var newLikeValue = Number(likeText.text())+1;
+			promise.done(function(postPrimkey){
+				$.post("phpRequests/processSongLike.php", {primkey: primkey}, function() {
+					likeText.fadeOut('fast', function() {
+						$(this).html(newLikeValue).fadeIn('fast', function() {
+							reloadPlaylist(postPrimkey);
+						});
+					});
+				});
+			});
+		});
+
 
 		//CLICK STATUS turn orange
 		$(document).on("click",".real-post .status-container",function(e) {
@@ -87,8 +121,13 @@ $(document).ready(function() {
 			openPost(postPrimkey);
 		});
 
+		//like song button is a child of the row. We dont want to highlight when we like it
+		$(document).on('click', ".like-song-btn", function(event){
+		  event.stopPropagation();
+		}); 
+
 		//SELECT ROW in playlist
-		$(document).on("click",".playlist-row",function() {
+		$(document).on("click",".playlist-row", function(e) {
 			var selected = $(this);
 			selectSongInPlaylist(selected);
 		});
@@ -170,8 +209,11 @@ $(document).ready(function() {
 			var btn = $(this);
 			console.log("click");
 			$.post("phpRequests/processLike.php", {primkey: primkey},function(data) {
-				btn.children(":first").html(data);
-				reloadPosts();		
+				btn.children(":first").fadeOut('fast',function() {
+					$(this).html(data).fadeIn('fast', function() {
+						reloadPosts();
+					});
+				});		
 			});
 		});
 	});

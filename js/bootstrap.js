@@ -208,19 +208,23 @@
 
   Button.prototype.toggle = function () {
     var $parent = this.$element.closest('[data-toggle="buttons-radio"]');
-	var $ele = this.$element;
-	$parent.children('.active').each(function(e) {
-		if ($(this).attr('id') != $ele.attr('id')) {
-			$(this).animate({width: '-=20%'},300);
-		}
-	});
-	if(!$ele.hasClass('active')) {
-		var session = this.$element.attr('id');
-			$.post("phpRequests/changeSession.php", {session: session},function(data) {
-				$("#generatePosts").load("phpRequests/reloadPosts.php");
-			});
-		this.$element.animate({width: '+=20%'},350);
-	}
+  	var $ele = this.$element;
+  	$parent.children('.active').each(function(e) {
+  		if ($(this).attr('id') != $ele.attr('id')) {
+  			$(this).animate({width: '-=20%'},300);
+  		}
+  	});
+  	if(!$ele.hasClass('active')) {
+     var session = this.$element.attr('id');
+  	 $.post("phpRequests/changeSession.php", {session: session},function(data) {
+  		$("#generatePosts").load("phpRequests/reloadPosts.php");
+  	});
+    this.$element.animate({width: '+=20%'},350, function() {
+      var firstPostPrimkey = $(".first-post").attr("id");
+      firstPostPrimkey = firstPostPrimkey.replace("post","");
+      openPost(firstPostPrimkey);
+    });
+	 }
     $parent && $parent
       .find('.active')
       .removeClass('active')

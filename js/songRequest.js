@@ -6,14 +6,18 @@ $(document).ready(function() {
 	var currentPlaylistID = 0;
 	var currentPlaylist = new Array();
 	var playState = $("#main-play-state-icon");
-	var musicState = -1;  // 0 = pause, 1 = play, -1 = neither
+	var musicState = -1;  // 0 = pause, 1 = play, -1 = nothing is playing
+	var songFromSuggestion = 0; // 1 = keep playing next song,  0 one song then stop
+	var queueingSong = 0;
 
-	function stopMusic() {
+	window.stopMusic = function() {
 		window.player.stopStream();
 		//Find if there is something playing; Find parent and remove stop button replace with play
-		var alreadyPlayingSuggestion = $(".stop-suggestion").parent("li");
-		$(".stop-suggestion").remove();
-		alreadyPlayingSuggestion.append("<i class='icon-play pull-right play-suggestion'></i>");
+		if (songFromSuggestion) {
+			var alreadyPlayingSuggestion = $(".stop-suggestion").parent("li");
+			$(".stop-suggestion").remove();
+			alreadyPlayingSuggestion.append("<i class='icon-play pull-right play-suggestion'></i>");
+		}
 	}
 
 	function resumeMusic() {
@@ -36,7 +40,7 @@ $(document).ready(function() {
 
 	function playFromPost(element) {
 		//empty old playlist
-		currentPlaylist = [];
+		emptyPlaylist();
 		currentPlaylistID = element.attr("id");
 		var promise = getPlaylist(currentPlaylistID);
 		openPost(currentPlaylistID);
@@ -56,6 +60,7 @@ $(document).ready(function() {
 	});
 
 	function playFromPlaylistRow(element) {
+		emptyPlaylist();
 		var songID = element.attr("value");
 		currentPlaylistID = element.attr("id");
 		var myarr = currentPlaylistID.split("-");
@@ -90,6 +95,10 @@ $(document).ready(function() {
 			selected.addClass("selected");
 			console.log("changing selected song color");
 		}
+	}
+
+	function emptyPlaylist() {
+		currentPlaylist = [];
 	}
 
 	function getPlaylist(postPrimkey) {
@@ -165,6 +174,7 @@ $(document).ready(function() {
 	// PLAY SUGGESTION  -  select and play suggested song sample
 	$(document).on("click", ".play-suggestion", function() {
 		stopMusic();
+		songFromSuggestion = 1;
 		//find songID and play it
 		var parent = $(this).parent("li");
 		selectSuggestion(parent);
@@ -220,10 +230,19 @@ $(document).ready(function() {
 	});
 
 	function playSong(songID) {
+		if (queueingSong > 1) {
+			queueingSong--;
+			console.log("Uh oh... double queue, stopping current request. "+queueingSong+" in the queue now.");
+			return;
+		}
 		if (songID) {
 			changeMainPlayerState(songID);
 	        currentSongID = songID;
 	        mainPlayerLoading();
+	        if (queueingSong > 1) {
+				queueingSong--;
+				return;
+			}
 	        $.ajax({
 	          url: "api/GroovesharkAPI/songGetter.php",
 	          type: "POST",
@@ -231,13 +250,17 @@ $(document).ready(function() {
 	            song: songID
 	          },
 	          success: function(response) {
+	          	queueingSong = 0;
 	            var responseData = jQuery.parseJSON(response);
 	            console.log("Play song response: "+response);
 	            if (!responseData.StreamKey) {
 	            	alert("Unfortunately this song can not be played at this time");
 	            }else{
 	         		window.player.playStreamKey(responseData.StreamKey, responseData.StreamServerHostname, responseData.StreamServerID);
-	         		window.player.setSongCompleteCallback("playNextSong");
+	         		if (!songFromSuggestion)
+	         			window.player.setSongCompleteCallback("playNextSong");
+	         		else
+	         			window.player.setSongCompleteCallback("stopMusic");
 	       		}
 	          }
         	});
@@ -254,6 +277,7 @@ $(document).ready(function() {
     	}else{
     		collapsePlayerInfo();
     		$(".player-info").promise().done(function() {
+    			queueingSong = 0;
     			$(this).hide();
 		    	nextSongState(playlistLength);
 		    	console.log("New playlist index: "+currentPlaylistSongIndex);
@@ -275,6 +299,7 @@ $(document).ready(function() {
     	}else{
     		collapsePlayerInfo();
     		$(".player-info").promise().done(function() {
+    			queueingSong = 0;
     			$(this).hide();
 		    	previousSongState(playlistLength);
 		    	console.log("New playlist index: "+currentPlaylistSongIndex);
@@ -290,13 +315,29 @@ $(document).ready(function() {
 
 	function handleEmptyPlaylistQueue() {
 		collapsePlayerInfo();
+		if (queueingSong > 1) {
+				queueingSong--;
+				return false;
+		}
 		$(".player-info").promise().done(function() {
+			if (queueingSong > 1) {
+				queueingSong--;
+				return false;
+			}
 			$(this).hide();
     		var promise = getRandomSongID();
 			promise.success(function(songID) {
-				mainPlayerLoading();
-				expandPlayerInfo();
-				playSong(songID);
+					if (queueingSong > 1) {
+						queueingSong--;
+						return false;
+					}
+					mainPlayerLoading();
+					expandPlayerInfo();
+					changeMainPlayerState(songID);
+					$(".player-info").promise().done(function() {
+						console.log("About to play: "+songID);
+						playSong(songID);
+					});
 			});
 		});
 	}
@@ -321,25 +362,21 @@ $(document).ready(function() {
     	}
 	}
 
-	function reloadPlaylist(postPrimkey) {
-		console.log("RELOADING: playlist"+postPrimkey);
-		//$("#playlist"+postPrimkey).html("NOOOO");
-		$("#playlist"+postPrimkey).load("phpRequests/reloadPlaylist.php?postPrimkey="+postPrimkey);	
-	}
-
 	function executeStateChange(songName, artistName, album) {
 		console.log("Change state details: ");
 		console.log("> songName: "+songName);
 		console.log("> artistName: "+artistName);
 		console.log("> album: "+album);
 		// -----------------------------------------
+		if(queueingSong <= 1) {
 		$("#playing-album").attr("src", album).show('slow');
 		$("#playingSongName").html(songName+" - ").show('slow');
 		$("#playingArtistName").html(artistName).show('slow');
 
-		expandPlayerInfo();
+			expandPlayerInfo();
 
-		makeMainPlay();
+			makeMainPlay();
+		}
 	}
 
 	function expandPlayerInfo() {
@@ -445,15 +482,72 @@ $(document).ready(function() {
 	}
 
 	$(document).on("click", "#next-song-btn", function(e) {
-		stopMusic();
 		e.preventDefault();
+		stopMusic();
 		playNextSong();
+		setQueue();
 	});
 
 	$(document).on("click", "#previous-song-btn", function(e) {
 		e.preventDefault();
 		stopMusic();
 		playPreviousSong();
+		setQueue();
 	});
+
+	var space = false;
+	//detect if space is "clicked"
+	$(document).keyup(function(evt) {
+	    if (evt.keyCode == 32) {
+	    	if (space) {
+	    		mainPlayBtnHandler();
+	    	}
+	      space = false;
+	    }
+	  }).keydown(function(evt) {
+	    if (evt.keyCode == 32) {
+	    	evt.stopPropagation();
+	    	evt.preventDefault();
+	     	space = true;
+	    }
+	});
+
+	var right = false;
+	//detect if right is "clicked"
+	$(document).keyup(function(evt) {
+	    if (evt.keyCode == 39) {
+	    	if (space) {
+	    		stopMusic();
+				playNextSong();
+				setQueue();
+	    	}
+	      space = false;
+	    }
+	  }).keydown(function(evt) {
+	    if (evt.keyCode == 39) {
+	      space = true;
+	    }
+	});
+
+	 var left = false;
+	//detect if left is "clicked"
+	$(document).keyup(function(evt) {
+	    if (evt.keyCode == 37) {
+	    	if (space) {
+	    		stopMusic();
+				playPreviousSong();
+				setQueue();
+	    	}
+	      space = false;
+	    }
+	  }).keydown(function(evt) {
+	    if (evt.keyCode == 37) {
+	      	space = true;
+	    }
+	});
+
+	function setQueue() {
+		queueingSong++;
+	}
 
 });

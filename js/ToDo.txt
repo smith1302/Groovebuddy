@@ -1,1 +1,2 @@
--Clicking play by default choose random song
+-Design header
+-Make play button look better suggestions

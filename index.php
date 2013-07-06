@@ -25,14 +25,26 @@ if(!isset($_SESSION['page'])) {
 			font-family: 'PT Sans', sans-serif;
 			overflow-y: auto;
 		}
+		#body-container {
+			/*background-color: #9B9589;
+			border: 3px double #595347;
+			margin-bottom: 100px;
+			border-radius: 10px;
+			padding: 0 1px;*/
+
+		}
+		#bg-img {
+			width: 100%;
+			z-index: 0;
+		}
 		.line-bar {
 			position: fixed;
 			width: 100%;
 			height: 1px;
 			left: 0;
 			background-color: #E39F05;
-			border-top:2px solid #4A463A;
-			border-bottom:4px solid #4A463A;
+			border-top:13px solid #4A463A;
+			border-bottom:3px solid #4A463A;
 			z-index: 99;
 		}
 		.vertical-line {
@@ -55,7 +67,7 @@ if(!isset($_SESSION['page'])) {
 			-2px 2px 0 #4A463A,
 			2px 2px 0 #4A463A;
 			margin:0;
-			margin-bottom: -10px;
+		/*	margin-bottom: -10px;*/
 		}
 		h2 {
 			font-family: sans-serif;
@@ -66,25 +78,30 @@ if(!isset($_SESSION['page'])) {
 			2px 2px 0 #4A463A;
 		}
 		header {
-			text-align: left;
-			margin: 25px 0 10px 0;
+			text-align: center;
 			color: #E39F05;
+			width: 100%;
+			background-color: #6B675B;
+			margin: 30px 0;
 		}
 		form {
 			padding:0;
 			margin:0;
 		}
 		#submit-well {
-			margin-top: 25px;
-			margin-bottom:35px;
+			/*margin-top: -125px;*/
+			margin-bottom: 15px;
 			padding: 15px;
 		}
 		.inner-well {
 			padding: 10px;
-			margin-top:50px;
-			margin-bottom: 0;
+			margin:50px 11px 0px;
 			border-radius: 5px;
 			border: 1px solid #606060;
+		}
+		.wrapper-padding {
+			padding-left: 9px;
+			padding-right: 9px;
 		}
 		.light-gradient {
 			background: #e8e5e2; /* Old browsers */
@@ -134,8 +151,7 @@ if(!isset($_SESSION['page'])) {
 		}
 		#playlist-well {
 			padding:8px;
-			margin:0;
-			margin-bottom: 150px;
+			margin:0 10px;
 		}
 		.fornav {
 			position:relative;
@@ -165,13 +181,17 @@ if(!isset($_SESSION['page'])) {
 			position: relative;
 		}
 		.status-container {
-			padding: 0 7px 0 15px;
+			padding: 0 7px 0 34px;
 			height: 40px;
 			line-height: 40px;
 			float:left;
 			overflow: hidden;
 			border-left:1px solid #C0C0C0;
 			width: 80%;
+		}
+
+		.status-container:first-letter {
+			font-size: 17px;
 		}
 		.orange-background {
 			background-color: #F0E8DA;
@@ -204,8 +224,8 @@ if(!isset($_SESSION['page'])) {
 			height: 0; 
 			border-top: 20px solid transparent;
 			border-bottom: 20px solid transparent; 
-			border-right:20px solid #D4D0C9; 
-			right: 74px;
+			border-left:20px solid #D4D0C9; 
+			left: 137px;
 			position: absolute;
 		}
 		.status-box-triangle-border {
@@ -213,8 +233,8 @@ if(!isset($_SESSION['page'])) {
 			height: 0; 
 			border-top: 21px solid transparent;
 			border-bottom: 21px solid transparent; 
-			border-right:21px solid #C4C0B9;
-			right: 75px;
+			border-left:21px solid #C4C0B9;
+			left: 138px;
 			position: absolute;
 		}
 		.status-box-triangle-container {
@@ -244,11 +264,11 @@ if(!isset($_SESSION['page'])) {
 			display: inline;
 			padding:0 5px 0 5px;
 		}
-		ul.info a {
+		.orange-link {
 			color: #303030;
 			text-decoration: none;
 		}
-		ul.info a:hover{
+		.orange-link:hover{
 			color: #BF740A;
 			text-decoration: none;
 		}
@@ -264,7 +284,10 @@ if(!isset($_SESSION['page'])) {
 		}
 		#nav-well {
 			padding: 7px;
-			margin-top: 0;
+			margin-top: 15px;
+		}
+		.white-text {
+			color: white;
 		}
 		table {
 			width: 100%;
@@ -384,14 +407,14 @@ if(!isset($_SESSION['page'])) {
 			width: 110px;
 		}
 	</style>
-	<title>Groove Buddy</title>
+	<title><?php echo SITE_NAME; ?></title>
 </head>
 <body>
 	<div class="line-bar" style="top:0"></div>
 	<div class="container">
 		<div class="navbar navbar-fixed-bottom navbar-inverse">
 		  <div class="navbar-inner">
-			<a href="#" class="brand" style="margin-left: 0px">Groove Buddy</a>
+			<a href="#" class="brand" style="margin-left: 0px"><?php echo SITE_NAME; ?></a>
 			<ul class="nav">
 				<li><a href="#">Find Music</a></li>
 			</ul>
@@ -432,16 +455,17 @@ if(!isset($_SESSION['page'])) {
 		  </div>
 		</div>
 	</div>
+
+	<img src="img/header.png"></img>
 	
-	
-	<div class="container" id="body-container">
-			
-			<header>
-					<h1>Need something here</h1>
-					<h2>Catchy slogan</h2>
-			</header>
-			<!--           ------              Submit Bar 					--------				-->
-			<div class="well inner-well black-gradient" id="submit-well">
+	<!-- <header>
+		<br /><br />
+			<h1><?php //echo SITE_NAME; ?></ h1>
+	</header> -->
+
+	<div class="container" style="position: absolute;left:50%;margin-left:-470px;top:15px">
+		<!--           ------              Submit Bar 					--------				-->
+			<div class="well inner-well black-gradient" id="submit-well" style="margin-left:0;margin-right:0" >
 				<form id="ask-form" method="post" action="processMessage.php">
 				<input type="submit" id="submit-status-btn" class="btn btn-orange" value="Ask" />
 				<span id="input-container">
@@ -451,6 +475,9 @@ if(!isset($_SESSION['page'])) {
 				</form>
 				<div style="clear:both"></div>
 			</div>
+	</div>
+
+	<div class="container" id="body-container">
 			
 			<!--           ------              Nav bar 					--------				-->
 			<div class="container" id="nav-group-container">
@@ -477,10 +504,12 @@ if(!isset($_SESSION['page'])) {
 						<div class="status-info-box">
 							<span class="example-post-text">Statistics</a>
 						</div>
+						<div class="status-box-triangle-border"></div>
+						<div class="status-box-triangle"></div>
 						<!--<div class="status-box-triangle-container">
 							<div class="status-box-triangle light"></div>
 						</div>-->
-						<div class="status-container example-post-text" >Description</div>
+						<div class="status-container example-post-text" style="padding:0">Description</div>
 						<div class="collapse-post-container example-post-text">
 							Music
 						</div>
