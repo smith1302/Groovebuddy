@@ -31,7 +31,6 @@ if(!isset($_SESSION['page'])) {
 			margin-bottom: 100px;
 			border-radius: 10px;
 			padding: 0 1px;*/
-
 		}
 		#bg-img {
 			width: 100%;
@@ -89,13 +88,13 @@ if(!isset($_SESSION['page'])) {
 			margin:0;
 		}
 		#submit-well {
-			/*margin-top: -125px;*/
+	/*		margin-top: 25px;*/
 			margin-bottom: 15px;
 			padding: 15px;
 		}
 		.inner-well {
 			padding: 10px;
-			margin:50px 11px 0px;
+			margin:50px 0 0;
 			border-radius: 5px;
 			border: 1px solid #606060;
 		}
@@ -151,7 +150,7 @@ if(!isset($_SESSION['page'])) {
 		}
 		#playlist-well {
 			padding:8px;
-			margin:0 10px;
+			margin:0;
 		}
 		.fornav {
 			position:relative;
@@ -463,7 +462,7 @@ if(!isset($_SESSION['page'])) {
 			<h1><?php //echo SITE_NAME; ?></ h1>
 	</header> -->
 
-	<div class="container" style="position: absolute;left:50%;margin-left:-470px;top:15px">
+	<div class="container">
 		<!--           ------              Submit Bar 					--------				-->
 			<div class="well inner-well black-gradient" id="submit-well" style="margin-left:0;margin-right:0" >
 				<form id="ask-form" method="post" action="processMessage.php">
