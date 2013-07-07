@@ -9,6 +9,7 @@ $(document).ready(function() {
 	var musicState = -1;  // 0 = pause, 1 = play, -1 = nothing is playing
 	var songFromSuggestion = 0; // 1 = keep playing next song,  0 one song then stop
 	var queueingSong = 0;
+	var playerStateUpdated = 1;
 
 	window.stopMusic = function() {
 		window.player.stopStream();
@@ -39,6 +40,7 @@ $(document).ready(function() {
 	});
 
 	function playFromPost(element) {
+		playerStateUpdated = 0;
 		//empty old playlist
 		emptyPlaylist();
 		currentPlaylistID = element.attr("id");
@@ -60,6 +62,7 @@ $(document).ready(function() {
 	});
 
 	function playFromPlaylistRow(element) {
+		playerStateUpdated = 0;
 		emptyPlaylist();
 		var songID = element.attr("value");
 		currentPlaylistID = element.attr("id");
@@ -270,6 +273,7 @@ $(document).ready(function() {
     }
 
     window.playNextSong = function() {
+    	playerStateUpdated = 0;
     	var playlistLength = currentPlaylist.length;
     	// length = 0 means its a random song, there is no next song in queue
     	if (playlistLength == 0) {
@@ -292,6 +296,7 @@ $(document).ready(function() {
 	}
 
 	function playPreviousSong() {
+		playerStateUpdated = 0;
 		var playlistLength = currentPlaylist.length;
     	// length = 0 means its a random song, there is no next song in queue
     	if (playlistLength == 0) {
@@ -374,8 +379,8 @@ $(document).ready(function() {
 		$("#playingArtistName").html(artistName).show('slow');
 
 			expandPlayerInfo();
-
 			makeMainPlay();
+			playerStateUpdated = 1;
 		}
 	}
 
@@ -438,13 +443,15 @@ $(document).ready(function() {
 	}
 
 	function changeMainPlayerState(songID) {
-		$.post("phpRequests/getInfoFromSongID.php", {songID: songID}, function(data) {
-			var info = jQuery.parseJSON(data);
-			var artistName = info[0]["artistName"];
-			var songName = info[0]["songName"];
-			var album = info[0]["album"];
-			executeStateChange(songName, artistName, album);
-		});
+		if(!playerStateUpdated) {
+			$.post("phpRequests/getInfoFromSongID.php", {songID: songID}, function(data) {
+				var info = jQuery.parseJSON(data);
+				var artistName = info[0]["artistName"];
+				var songName = info[0]["songName"];
+				var album = info[0]["album"];
+				executeStateChange(songName, artistName, album);
+			});
+		}
 	}
 
 	$(document).on("click", "#toggle-song-button", function(e) {

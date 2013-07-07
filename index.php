@@ -17,6 +17,7 @@ if(!isset($_SESSION['page'])) {
 	<link rel="stylesheet" href="<?php PATH_TO_ROOT; ?>font-awesome/css/font-awesome.css">
 	<link href='http://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
 	<link href='http://fonts.googleapis.com/css?family=PT+Sans' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Fugaz+One' rel='stylesheet' type='text/css'>
 	<style>
 		body {
 			background-color: #6B675B;
@@ -31,6 +32,7 @@ if(!isset($_SESSION['page'])) {
 			margin-bottom: 100px;
 			border-radius: 10px;
 			padding: 0 1px;*/
+			margin-bottom: 100px;
 		}
 		#bg-img {
 			width: 100%;
@@ -59,29 +61,30 @@ if(!isset($_SESSION['page'])) {
 			margin:20px 0 70px 0;
 		}
 		h1 {
-			font-size: 39px;
-			font-family: 'Pacifico', sans-serif;
+			font-size: 70px;
+			/*font-family: 'Fugaz One', cursive;*/
+			font-family: 'Pacifico', cursive;
 			font-weight: normal;
-			text-shadow:
-			-2px 2px 0 #4A463A,
-			2px 2px 0 #4A463A;
-			margin:0;
-		/*	margin-bottom: -10px;*/
+			color: #E39F05;
+			/*text-shadow: 1px 2px 0 #FAE7BB;*/
+			text-shadow: 1px 2px 0 #505050;
+			margin: 0;
+			margin-left: -40px;
 		}
 		h2 {
 			font-family: sans-serif;
 			text-indent: 60px;
 			font-size: 17px;
 			text-shadow:
-			-2px 2px 0 #4A463A,
-			2px 2px 0 #4A463A;
+			-2px 2px 0 #FFFFFF,
+			2px 2px 0 #FFFFFF;
 		}
-		header {
-			text-align: center;
-			color: #E39F05;
+		#header-text {
+			position: absolute;
 			width: 100%;
-			background-color: #6B675B;
-			margin: 30px 0;
+			left:0;
+			top: 80px;
+			text-align: center;
 		}
 		form {
 			padding:0;
@@ -455,12 +458,12 @@ if(!isset($_SESSION['page'])) {
 		</div>
 	</div>
 
+	<header>
 	<img src="img/header.png"></img>
-	
-	<!-- <header>
-		<br /><br />
-			<h1><?php //echo SITE_NAME; ?></ h1>
-	</header> -->
+		<div id="header-text">
+			<h1><?php echo SITE_NAME; ?></ h1>
+		</div>
+	</header>
 
 	<div class="container">
 		<!--           ------              Submit Bar 					--------				-->
