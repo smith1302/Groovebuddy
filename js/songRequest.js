@@ -260,10 +260,13 @@ $(document).ready(function() {
 	            	alert("Unfortunately this song can not be played at this time");
 	            }else{
 	         		window.player.playStreamKey(responseData.StreamKey, responseData.StreamServerHostname, responseData.StreamServerID);
-	         		if (!songFromSuggestion)
+	         		if (!songFromSuggestion){
 	         			window.player.setSongCompleteCallback("playNextSong");
-	         		else
+	         			console.log("Song has finished... playing next song");
+	         		}else {
 	         			window.player.setSongCompleteCallback("stopMusic");
+	         			console.log("suggestion song has finished... stopping");
+	         		}
 	       		}
 	          }
         	});
@@ -328,22 +331,18 @@ $(document).ready(function() {
 			if (queueingSong > 1) {
 				queueingSong--;
 				return false;
-			}
-			$(this).hide();
-    		var promise = getRandomSongID();
-			promise.success(function(songID) {
-					if (queueingSong > 1) {
-						queueingSong--;
-						return false;
-					}
-					mainPlayerLoading();
-					expandPlayerInfo();
-					changeMainPlayerState(songID);
-					$(".player-info").promise().done(function() {
-						console.log("About to play: "+songID);
+			}else{
+				$(this).hide();
+	    		var promise = getRandomSongID();
+				promise.success(function(songID) {
+						if (queueingSong > 1) {
+							queueingSong--;
+							return false;
+						}
+						mainPlayerLoading();
 						playSong(songID);
-					});
-			});
+				});
+			}
 		});
 	}
 
@@ -476,6 +475,7 @@ $(document).ready(function() {
 				expandPlayerInfo();
 				playFromPost(selectedPost);
 			}else{ // play random song
+				playerStateUpdated = 0;
 				var promise = getRandomSongID();
 				promise.success(function(songID) {
 					playSong(songID);
@@ -506,15 +506,13 @@ $(document).ready(function() {
 	//detect if space is "clicked"
 	$(document).keyup(function(evt) {
 	    if (evt.keyCode == 32) {
-	    	if (space) {
+	    	if (space && canUseSpace()) {
 	    		mainPlayBtnHandler();
 	    	}
 	      space = false;
 	    }
 	  }).keydown(function(evt) {
 	    if (evt.keyCode == 32) {
-	    	evt.stopPropagation();
-	    	evt.preventDefault();
 	     	space = true;
 	    }
 	});
@@ -523,16 +521,16 @@ $(document).ready(function() {
 	//detect if right is "clicked"
 	$(document).keyup(function(evt) {
 	    if (evt.keyCode == 39) {
-	    	if (space) {
+	    	if (right) {
 	    		stopMusic();
 				playNextSong();
 				setQueue();
 	    	}
-	      space = false;
+	      right = false;
 	    }
 	  }).keydown(function(evt) {
 	    if (evt.keyCode == 39) {
-	      space = true;
+	      right = true;
 	    }
 	});
 
@@ -540,18 +538,26 @@ $(document).ready(function() {
 	//detect if left is "clicked"
 	$(document).keyup(function(evt) {
 	    if (evt.keyCode == 37) {
-	    	if (space) {
+	    	if (left) {
 	    		stopMusic();
 				playPreviousSong();
 				setQueue();
 	    	}
-	      space = false;
+	      left = false;
 	    }
 	  }).keydown(function(evt) {
 	    if (evt.keyCode == 37) {
-	      	space = true;
+	      	left = true;
 	    }
 	});
+
+	function canUseSpace() {
+		if ($(document.activeElement).attr("type") == "text" || $(document.activeElement).attr("type") == "textarea") {
+		  return false;
+		}else{
+			return true;
+		}
+	}
 
 	function setQueue() {
 		queueingSong++;

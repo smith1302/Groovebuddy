@@ -5,12 +5,12 @@ function togglePostOpen(postPrimkey) {
 	var dropdown = $("#post"+postPrimkey).siblings(".dropdown-playlist-container");
 	if(dropdown.is(":hidden")) {
 		openCollapseBtn(postPrimkey);
-		dropdown.slideDown('slow', function() {
+		dropdown.slideDown('medium', function() {
 			dropdown.show();
 		});
 	}else{
 		closeCollapseBtn(postPrimkey);
-		dropdown.slideUp('slow', function() {
+		dropdown.slideUp('medium', function() {
 			dropdown.hide();
 		});
 	}
@@ -20,7 +20,7 @@ function openPost(postPrimkey) {
 	var dropdown = $("#post"+postPrimkey).siblings(".dropdown-playlist-container");
 	if(dropdown.is(":hidden")) {
 		openCollapseBtn(postPrimkey);
-		dropdown.slideDown('slow', function() {
+		dropdown.slideDown('medium', function() {
 			dropdown.show();
 		});
 	}
@@ -64,16 +64,48 @@ function getSongPostPrimkey(primkey) {
 	return $.post("phpRequests/getSongPostPrimkey.php", {primkey: primkey});
 }
 
+var searchBarInterval;
 $(document).ready(function() {
+
+		$( "#slider" ).slider({
+	      orientation: "vertical",
+	      range: "min",
+	      min: 0,
+	      max: 100,
+	      value: 60,
+	      slide: function( event, ui ) {
+	      	window.player.setVolume(ui.value);
+	      }
+		});
 
 		/*
 		*	Toggling nav buttons to change popular to new is in bootstrap.js
 		*   Button.prototype.toggle = function () {}
 		*/
 
-		var firstPostPrimkey = $(".first-post").attr("id");
-		firstPostPrimkey = firstPostPrimkey.replace("post","");
-		openPost(firstPostPrimkey);
+		$(document).on("keyup", "#search-bar", function(e) {
+			clearTimeout(searchBarInterval);
+			searchBarInterval = setTimeout(function() {
+				console.log("Text val: "+$("#search-bar").val());
+				clearTimeout(searchBarInterval);
+			}, 300);
+		});
+
+		function doSearch() {
+			console.log("Text val: "+$("#search-bar").val());
+			clearTimeout(searchBarInterval);
+		}
+
+		//CLICK VOLUME BTN
+		$(document).on("click","#volume-btn",function(e) {
+			e.preventDefault();
+			var ele = $("#volume-background");
+			if (ele.is(":hidden")) {
+				ele.slideDown("medium");
+			} else {
+				ele.slideUp("medium");
+			}
+		});
 
 		//CLICK LIKE BTN for each song
 		$(document).on("click",".like-song-btn",function(e) {

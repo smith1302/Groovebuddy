@@ -1,5 +1,6 @@
 <?php
 	require '../dbconf.php';
+	include '../phpFunctions.php';
 	$songID = $_POST['songID'];
 	$Url = $_POST['Url'];
 	$songName = $_POST['songName'];

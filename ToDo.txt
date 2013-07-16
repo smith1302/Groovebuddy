@@ -1,0 +1,5 @@
+-Make play button look better suggestions
+-Day/Week
+-Load More
+-Search
+-Volume controller hide when user clicks on page
